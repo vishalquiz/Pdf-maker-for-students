@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Text to PDF Converter</title>
+
+    <!-- Include the jsPDF library from a CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top */
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        p.subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        .developer-credit {
+            font-weight: bold;
+            color: #555;
+            text-align: right;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .main-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .editor-section {
+            width: 100%;
+        }
+
+        .styling-section {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .options-fieldset {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            flex-grow: 1;
+        }
+        .options-fieldset legend {
+            font-weight: bold;
+            color: #2c3e50;
+            padding: 0 10px;
+            margin-left: 10px;
+            text-align: left;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            text-align: left;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .color-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="color"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 40px;
+            height: 40px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border-radius: 8px;
+            border: 1px solid #bdc3c7;
+        }
+        input[type="color"]::-moz-color-swatch {
+            border-radius: 8px;
+            border: 1px solid #bdc3c7;
+        }
+
+        #fontSizeInput {
+            width: 70px;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #bdc3c7;
+            font-size: 16px;
+        }
+        
+        .preview-panel {
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            text-align: left;
+            flex-basis: 300px;
+            flex-grow: 1;
+        }
+        .preview-panel h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        #preview-main-heading {
+            font-weight: bold;
+            font-size: 1.4em;
+        }
+        #preview-subheading {
+            font-weight: bold;
+            font-size: 1.15em;
+        }
+        #preview-body {
+            font-size: 1em;
+        }
+        #preview-special-char {
+            font-weight: bold;
+        }
+
+        #textInput {
+            width: 100%;
+            height: 400px;
+            padding: 15px;
+            border: 1px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: vertical;
+            box-sizing: border-box;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        #generatePdfButton {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        #generatePdfButton:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="developer-credit">By Vishal Yadav</div>
+        <h1>Advanced Text to PDF Converter</h1>
+        <p class="subtitle">Paste text from any medical or academic field. The tool will automatically find and format key headings for you.</p>
+        
+        <div class="main-layout">
+            <div class="styling-section">
+                <fieldset class="options-fieldset">
+                    <legend>PDF Styling Options</legend>
+                    <div class="options-grid">
+                        <div class="control-group">
+                            <label for="fontSizeInput">Base Font Size:</label>
+                            <input type="number" id="fontSizeInput" value="12" min="8" max="48">
+                        </div>
+                         <div class="control-group">
+                            <label for="mainHeadingColor">Main Heading:</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" id="mainHeadingColor" value="#2c3e50">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="subheadingColor">Subheading:</label>
+                            <div class="color-input-wrapper">
+                                <input type="color" id="subheadingColor" value="#2980b9">
+                            </div>
+                        </div>
+                         <div class="control-group">
+                            <label for="bodyColor">Body Text:</label>
+                             <div class="color-input-wrapper">
+                                <input type="color" id="bodyColor" value="#34495e">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="specialCharColor">Special Char (*):</label>
+                             <div class="color-input-wrapper">
+                                <input type="color" id="specialCharColor" value="#e74c3c">
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="preview-panel">
+                    <h3>Live Preview</h3>
+                    <p id="preview-main-heading">Main Heading</p>
+                    <p id="preview-subheading">Subheading</p>
+                    <p id="preview-body">This is the body text. It demonstrates the look of a normal paragraph. It also contains a <span id="preview-special-char">*</span> special character.</p>
+                </div>
+            </div>
+
+            <div class="editor-section">
+                <textarea id="textInput" placeholder="Paste your text here... The tool will intelligently identify headings from fields like medicine, law, and general studies."></textarea>
+                <button id="generatePdfButton">Generate PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+
+        // --- LIVE PREVIEW FUNCTIONALITY ---
+        const mainHeadingColorInput = document.getElementById('mainHeadingColor');
+        const subheadingColorInput = document.getElementById('subheadingColor');
+        const bodyColorInput = document.getElementById('bodyColor');
+        const specialCharColorInput = document.getElementById('specialCharColor');
+
+        const previewMainHeading = document.getElementById('preview-main-heading');
+        const previewSubheading = document.getElementById('preview-subheading');
+        const previewBody = document.getElementById('preview-body');
+        const previewSpecialChar = document.getElementById('preview-special-char');
+
+        mainHeadingColorInput.addEventListener('input', (e) => previewMainHeading.style.color = e.target.value);
+        subheadingColorInput.addEventListener('input', (e) => previewSubheading.style.color = e.target.value);
+        bodyColorInput.addEventListener('input', (e) => previewBody.style.color = e.target.value);
+        specialCharColorInput.addEventListener('input', (e) => previewSpecialChar.style.color = e.target.value);
+
+        // --- PDF GENERATION LOGIC ---
+        document.getElementById('generatePdfButton').addEventListener('click', function () {
+            // --- 1. GET ALL USER INPUTS & CLEAN TEXT ---
+            const originalTextInput = document.getElementById('textInput').value;
+            const textInput = originalTextInput.replace(/(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g, '');
+
+            const baseFontSize = parseInt(document.getElementById('fontSizeInput').value, 10);
+            const mainHeadingColor = mainHeadingColorInput.value;
+            const subheadingColor = subheadingColorInput.value;
+            const bodyColor = bodyColorInput.value;
+            const specialCharColor = specialCharColorInput.value;
+            const specialChars = ['*'];
+
+            // --- 2. VALIDATE INPUTS ---
+            if (!textInput.trim()) {
+                alert("Please enter some text to generate a PDF.");
+                return;
+            }
+            if (isNaN(baseFontSize) || baseFontSize < 8 || baseFontSize > 48) {
+                alert("Please select a valid font size between 8 and 48.");
+                return;
+            }
+
+            // --- 3. SETUP PDF DOCUMENT ---
+            const doc = new jsPDF();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 20;
+            const usableWidth = pageWidth - (margin * 2);
+            let cursorY = margin;
+
+            // --- 4. EXPANDED KEYWORD DATABASE & ANALYSIS FUNCTION ---
+            const mainHeadings = [
+                // MBBS: Pre-Clinical
+                "anatomy", "microanatomy", "embryology", "genetics", "physiology", "cardiovascular", "respiratory", "gastrointestinal", "neurophysiology", "biochemistry", "molecular biology", "enzymes", "hormones",
+                // MBBS: Para-Clinical
+                "pathology", "general pathology", "systemic pathology", "pharmacology", "drugs", "microbiology", "bacteriology", "virology", "mycology", "parasitology", "sterilization", "vaccines", "forensic medicine", "toxicology", "community medicine", "preventive & social medicine", "public health", "epidemiology", "biostatistics", "national health programs", "health administration", "clinical postings",
+                // MBBS: Clinical
+                "general medicine", "general surgery", "wound care", "trauma", "pediatrics", "child health", "neonatology", "immunization", "obstetrics", "gynaecology", "reproductive health", "pregnancy", "childbirth", "women's health", "ophthalmology", "otorhinolaryngology", "ent", "orthopedics", "musculoskeletal", "fractures", "sports medicine", "dermatology", "psychiatry", "mental health", "radiology", "medical imaging", "anesthesiology", "pain management", "casualty", "emergency medicine",
+                // BAMS: First Year
+                "samskritam", "ayurved itihas", "padartha vigyan", "kriya sharir", "tridosha", "dhatus", "agni", "rachana sharira", "marma", "samhita adhyayan", "charak samhita",
+                // BAMS: Second Year
+                "dravyaguna vigyan", "materia medica", "rasashastra", "bhaishajyakalpana", "ayurvedic pharmaceuticals", "roga nidan", "vikriti vigyan", "agad tantra", "vidhi vaidyaka", "swasthavritta", "yoga", "lifestyle management",
+                // BAMS: Final Year
+                "kayachikitsa", "internal medicine", "rejuvenative medicine", "rasayana", "vajikarana", "panchakarma", "upakarma", "vaman", "virechan", "basti", "nasya", "raktamokshan", "shalya tantra", "shalakya tantra", "oro-dentistry", "prasuti tantra", "stree roga", "kaumarabhritya", "atyaikachikitsa", "research methodology", "medical-statistics",
+                // UPSC: Prelims
+                "current events", "history of india", "indian national movement", "indian and world geography", "indian polity and governance", "constitution", "political system", "panchayati raj", "public policy", "rights issues", "economic and social development", "sustainable development", "poverty", "inclusion", "demographics", "environmental ecology", "biodiversity", "climate change", "general science", "civil services aptitude test", "csat", "comprehension", "logical reasoning", "decision making", "general mental ability", "basic numeracy", "data interpretation",
+                // UPSC: Mains GS-I
+                "indian heritage and culture", "art forms", "literature", "architecture", "modern indian history", "freedom struggle", "post-independence consolidation", "world history", "indian society", "diversity of india", "role of women", "globalization", "social empowerment", "communalism", "regionalism", "secularism", "physical geography", "natural resources", "geophysical phenomena",
+                // UPSC: Mains GS-II
+                "governance", "separation of powers", "parliament", "state legislatures", "judiciary", "representation of people’s act", "constitutional bodies", "welfare schemes", "health, education, human resources", "transparency", "accountability", "role of civil services", "india and its neighborhood", "bilateral, regional and global groupings", "international relations", "international institutions",
+                // UPSC: Mains GS-III
+                "indian economy", "planning", "mobilization of resources", "inclusive growth", "government budgeting", "major crops", "public distribution system", "food processing", "land reforms", "liberalization", "infrastructure", "investment models", "science and technology", "robotics", "nanotechnology", "bio-technology", "intellectual property rights", "conservation", "environmental pollution", "disaster management", "internal security", "cyber security", "money-laundering", "organized crime", "terrorism",
+                // UPSC: Mains GS-IV
+                "ethics, integrity and aptitude", "human interface", "attitude", "emotional intelligence", "moral thinkers", "philosophers", "civil service values", "probity in governance", "corruption", "case studies",
+                // UPSC: Optional Subjects (as concepts)
+                "agriculture", "animal husbandry", "anthropology", "botany", "chemistry", "civil engineering", "commerce", "accountancy", "economics", "electrical engineering", "geography", "geology", "history", "law", "management", "mathematics", "mechanical engineering", "medical science", "philosophy", "physics", "political science", "psychology", "public administration", "sociology", "statistics", "zoology",
+                // General Terms
+                "introduction", "conclusion", "summary", "abstract", "discussion", "results", "methods", "materials and methods"
+            ];
+
+
+            const getTextLineStyle = (line) => {
+                const cleanedLine = line.trim().toLowerCase().replace(/^[\d\s\.\-\*]+/, ''); // Remove leading list markers
+                if (cleanedLine.length === 0) return 'empty';
+
+                // Check if the cleaned line CONTAINS any of the main headings
+                if (mainHeadings.some(heading => cleanedLine.includes(heading))) {
+                    return 'main-heading';
+                }
+
+                // Fallback for optional/secondary headings (subheadings)
+                const lastChar = line.trim().slice(-1);
+                const hasNoPunctuation = !['.', '?', '!', ',', ';', ':'].includes(lastChar);
+                const isShort = line.trim().length < 80;
+                // A line is a subheading if it's short and doesn't end with punctuation
+                if (hasNoPunctuation && isShort) {
+                    return 'secondary-heading';
+                }
+
+                return 'body';
+            };
+            
+            // --- 5. PROCESS AND ADD TEXT TO PDF ---
+            const paragraphs = textInput.split(/\n\s*\n/);
+
+            paragraphs.forEach(paragraph => {
+                let currentText = paragraph.trim();
+                if (currentText.length === 0) return;
+
+                const firstLineOfParagraph = currentText.split('\n')[0];
+                const textStyle = getTextLineStyle(firstLineOfParagraph);
+                
+                let originalColor;
+                let currentFontSize;
+                
+                switch (textStyle) {
+                    case 'main-heading':
+                        doc.setFont("Times", "bold");
+                        currentFontSize = baseFontSize * 1.4;
+                        doc.setFontSize(currentFontSize);
+                        doc.setTextColor(mainHeadingColor);
+                        originalColor = mainHeadingColor;
+                        break;
+                    case 'secondary-heading':
+                        doc.setFont("Times", "bold");
+                        currentFontSize = baseFontSize * 1.15;
+                        doc.setFontSize(currentFontSize);
+                        doc.setTextColor(subheadingColor);
+                        originalColor = subheadingColor;
+                        break;
+                    case 'body':
+                    default:
+                        doc.setFont("Times", "Roman");
+                        currentFontSize = baseFontSize;
+                        doc.setFontSize(currentFontSize);
+                        doc.setTextColor(bodyColor);
+                        originalColor = bodyColor;
+                        break;
+                }
+                
+                const lineHeight = currentFontSize * 1.2 / doc.internal.scaleFactor;
+                const textToRender = currentText.replace(/(?<!\n)\n(?!\n)/g, " ");
+                const lines = doc.splitTextToSize(textToRender, usableWidth);
+                
+                if (cursorY + (lines.length * lineHeight) > pageHeight - margin) {
+                    doc.addPage();
+                    cursorY = margin;
+                }
+
+                lines.forEach((line) => {
+                     if (cursorY + lineHeight > pageHeight - margin) {
+                        doc.addPage();
+                        cursorY = margin;
+                        doc.setFontSize(currentFontSize);
+                        doc.setFont(undefined, doc.getFont().fontStyle);
+                    }
+
+                    let currentX = margin;
+                    for (const char of line) {
+                        const isSpecial = specialChars.includes(char);
+                        doc.setTextColor(isSpecial ? specialCharColor : originalColor);
+                        doc.text(char, currentX, cursorY);
+                        currentX += doc.getTextWidth(char);
+                    }
+                    cursorY += lineHeight;
+                });
+                
+                cursorY += lineHeight * 0.5; 
+            });
+
+            // --- 6. SAVE THE PDF ---
+            let fileName = prompt("Please enter a name for your PDF file:", "generated-document.pdf");
+            
+            if (fileName === null) {
+                return; // User cancelled the prompt
+            }
+            
+            if (!fileName.toLowerCase().endsWith('.pdf')) {
+                fileName += '.pdf';
+            }
+
+            doc.save(fileName);
+        });
+    </script>
+
+</body>
+</html>
